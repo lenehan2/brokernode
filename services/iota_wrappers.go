@@ -270,7 +270,7 @@ func doPowAndBroadcast(branch giota.Trytes, trunk giota.Trytes, depth int64,
 		} else {
 
 			fmt.Println("Broadcast Success!")
-
+			api.StoreTransactions(trytes)
 			/*
 				TODO do we need this??
 			*/
