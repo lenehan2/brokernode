@@ -64,7 +64,7 @@ var (
 	mutex        = &sync.Mutex{}
 	seed         giota.Trytes
 	minDepth     = int64(giota.DefaultNumberOfWalks)
-	minWeightMag = int64(14)
+	minWeightMag = int64(9)
 	bestPow      giota.PowFunc
 	powName      string
 	Channel      = map[string]PowChannel{}
@@ -270,7 +270,7 @@ func doPowAndBroadcast(branch giota.Trytes, trunk giota.Trytes, depth int64,
 		} else {
 
 			fmt.Println("Broadcast Success!")
-
+			api.StoreTransactions(trytes)
 			/*
 				TODO do we need this??
 			*/
