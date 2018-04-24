@@ -10,7 +10,6 @@ import (
 	"github.com/gobuffalo/pop/nulls"
 	"github.com/oysterprotocol/brokernode/models"
 	"github.com/oysterprotocol/brokernode/services"
-	"github.com/oysterprotocol/brokernode/utils"
 	"github.com/pkg/errors"
 )
 
@@ -165,6 +164,7 @@ func (usr *UploadSessionResource) Update(c buffalo.Context) error {
 			if chunk.Hash == dm.GenesisHash {
 				// Updates dmap in DB.
 				dm.Message = chunk.Data
+				dm.Status = models.Unassigned
 				models.DB.ValidateAndSave(&dm)
 			}
 

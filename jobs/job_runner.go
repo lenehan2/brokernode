@@ -1,12 +1,13 @@
 package jobs
 
 import (
+	"time"
+
 	"github.com/gobuffalo/buffalo/worker"
 	"github.com/oysterprotocol/brokernode/services"
-	"time"
 )
 
-var BundleSize = 10
+var BundleSize = 30
 
 var OysterWorker = worker.NewSimple()
 

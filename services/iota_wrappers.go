@@ -64,7 +64,7 @@ var (
 	mutex        = &sync.Mutex{}
 	seed         giota.Trytes
 	minDepth     = int64(giota.DefaultNumberOfWalks)
-	minWeightMag = int64(14)
+	minWeightMag = int64(9)
 	bestPow      giota.PowFunc
 	powName      string
 	Channel      = map[string]PowChannel{}
