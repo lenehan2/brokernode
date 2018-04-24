@@ -71,6 +71,9 @@ func (usr *UploadSessionResource) Create(c buffalo.Context) error {
 		StorageLengthInYears: req.StorageLengthInYears,
 		ETHAddrAlpha:         nulls.NewString(alphaEthAddr),
 		ETHPrivateKey:        privKey,
+		// TODO remove for uploads with payments
+		PaymentStatus:  models.PaymentStatusPaid,
+		TreasureStatus: models.TreasureBuried,
 	}
 	vErr, err := alphaSession.StartUploadSession()
 	if err != nil {
@@ -197,6 +200,9 @@ func (usr *UploadSessionResource) CreateBeta(c buffalo.Context) error {
 		ETHAddrAlpha:         req.Invoice.EthAddress,
 		ETHAddrBeta:          nulls.NewString(betaEthAddr),
 		ETHPrivateKey:        privKey,
+		// TODO remove for uploads with payments
+		PaymentStatus:  models.PaymentStatusPaid,
+		TreasureStatus: models.TreasureBuried,
 	}
 	vErr, err := u.StartUploadSession()
 	if err != nil {
