@@ -76,6 +76,8 @@ func (usr *UploadSessionResource) Create(c buffalo.Context) error {
 		StorageLengthInYears: req.StorageLengthInYears,
 		ETHAddrAlpha:         nulls.NewString(alphaEthAddr),
 		ETHPrivateKey:        privKey,
+		PaymentStatus:  models.PaymentStatusPaid,
+		TreasureStatus: models.TreasureBuried,
 	}
 	vErr, err := alphaSession.StartUploadSession()
 	if err != nil {
@@ -170,6 +172,7 @@ func (usr *UploadSessionResource) Update(c buffalo.Context) error {
 			if chunk.Hash == dm.GenesisHash {
 				// Updates dmap in DB.
 				dm.Message = chunk.Data
+				dm.Status = models.Unassigned
 				models.DB.ValidateAndSave(&dm)
 			}
 
@@ -201,6 +204,8 @@ func (usr *UploadSessionResource) CreateBeta(c buffalo.Context) error {
 		ETHAddrAlpha:         req.Invoice.EthAddress,
 		ETHAddrBeta:          nulls.NewString(betaEthAddr),
 		ETHPrivateKey:        privKey,
+		PaymentStatus:  models.PaymentStatusPaid,
+		TreasureStatus: models.TreasureBuried,
 	}
 	vErr, err := u.StartUploadSession()
 	if err != nil {
