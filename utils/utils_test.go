@@ -23,40 +23,22 @@ func Test_ConvertToTrytes_1Byte(t *testing.T) {
 	assertTrue(v == 2, t, "")
 }
 
-func Test_GetTotalFileChunkIncludingBuriedPearlsUsingFileSize_SmallFileSize(t *testing.T) {
-	v := GetTotalFileChunkIncludingBuriedPearlsUsingFileSize(10)
+func Test_GetTotalFileChunkIncludingBuriedPearls_SmallFileSize(t *testing.T) {
+	v := GetTotalFileChunkIncludingBuriedPearls(10)
 
 	assertTrue(v == 2, t, "")
 }
 
-func Test_GetTotalFileChunkIncludingBuriedPearlsUsingFileSize_MediaFileSize(t *testing.T) {
-	v := GetTotalFileChunkIncludingBuriedPearlsUsingFileSize(FileChunkSizeInByte)
+func Test_GetTotalFileChunkIncludingBuriedPearls_MediaFileSize(t *testing.T) {
+	v := GetTotalFileChunkIncludingBuriedPearls(FileChunkSizeInByte)
 
 	assertTrue(v == 2, t, "")
 }
 
-func Test_GetTotalFileChunkIncludingBuriedPearlsUsingFileSize_BigFileSize(t *testing.T) {
-	v := GetTotalFileChunkIncludingBuriedPearlsUsingFileSize(FileChunkSizeInByte * FileSectorInChunkSize * 2)
+func Test_GetTotalFileChunkIncludingBuriedPearls_BigFileSize(t *testing.T) {
+	v := GetTotalFileChunkIncludingBuriedPearls(FileChunkSizeInByte * FileSectorInChunkSize * 2)
 
 	assertTrue(v == 2*FileSectorInChunkSize+3, t, "")
-}
-
-func Test_GetTotalFileChunkIncludingBuriedPearlsUsingNumChunks_SmallFileSize(t *testing.T) {
-	v := GetTotalFileChunkIncludingBuriedPearlsUsingNumChunks(10)
-
-	assertTrue(v == 11, t, "")
-}
-
-func Test_GetTotalFileChunkIncludingBuriedPearlsUsingNumChunks_LargeFileSize(t *testing.T) {
-	v := GetTotalFileChunkIncludingBuriedPearlsUsingNumChunks((FileSectorInChunkSize * 10) + 1)
-
-	assertTrue(v == (FileSectorInChunkSize*10)+1+11, t, "")
-}
-
-func Test_GetTotalFileChunkIncludingBuriedPearlsUsingNumChunks_HugeFileSize(t *testing.T) {
-	v := GetTotalFileChunkIncludingBuriedPearlsUsingNumChunks((FileSectorInChunkSize * 60) + 500)
-
-	assertTrue(v == (FileSectorInChunkSize*60)+500+61, t, "")
 }
 
 func Test_TransformIndexWithBuriedIndexes_NoBuriedIndexes(t *testing.T) {
@@ -254,5 +236,11 @@ func compareIntsArray(t *testing.T, a []int, b []int) {
 
 	for i := 0; i < len(a); i++ {
 		assertTrue(a[i] == b[i], t, "a and b value are different")
+	}
+}
+
+func assertTrue(v bool, t *testing.T, desc string) {
+	if !v {
+		t.Error(desc)
 	}
 }

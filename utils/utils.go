@@ -70,16 +70,11 @@ func ConvertToTrytes(bytes int) int {
 }
 
 // Return the total file chunk, including burying pearl
-func GetTotalFileChunkIncludingBuriedPearlsUsingFileSize(fileSizeInByte int) int {
+func GetTotalFileChunkIncludingBuriedPearls(fileSizeInByte int) int {
 	fileSectorInByte := FileChunkSizeInByte * (FileSectorInChunkSize - 1)
 	numOfSectors := int(math.Ceil(float64(fileSizeInByte) / float64(fileSectorInByte)))
 
 	return numOfSectors + int(math.Ceil(float64(fileSizeInByte)/float64(FileChunkSizeInByte)))
-}
-
-// Return the total file chunk, including burying pearl
-func GetTotalFileChunkIncludingBuriedPearlsUsingNumChunks(numChunks int) int {
-	return numChunks + int(math.Ceil(float64(numChunks)/float64(FileSectorInChunkSize)))
 }
 
 // Transforms index with correct position for insertion after considering the buried indexes.

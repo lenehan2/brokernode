@@ -1,0 +1,3 @@
+create_table("treasure_hunts", func(t) {
+	t.Column("id", "uuid", {"primary": true})
+})

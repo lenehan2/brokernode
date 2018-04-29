@@ -64,7 +64,7 @@ var (
 	mutex        = &sync.Mutex{}
 	seed         giota.Trytes
 	minDepth     = int64(giota.DefaultNumberOfWalks)
-	minWeightMag = int64(9)
+	minWeightMag = int64(14)
 	bestPow      giota.PowFunc
 	powName      string
 	Channel      = map[string]PowChannel{}
@@ -83,8 +83,9 @@ func init() {
 
 	host_ip := os.Getenv("HOST_IP")
 	if host_ip == "" {
+		log.Println("No IRI host given")
 		raven.CaptureError(err, nil)
-		panic("Invalid IRI host: Check the .env file for HOST_IP")
+		// panic("Invalid IRI host: Check the .env file for HOST_IP")
 	}
 
 	provider := "http://" + host_ip + ":14265"
@@ -106,6 +107,8 @@ func init() {
 	if PowProcs != 1 {
 		PowProcs--
 	}
+
+	//makeFakeChunks()
 
 	channels := []models.ChunkChannel{}
 
@@ -129,6 +132,23 @@ func init() {
 
 		// start the worker
 		go PowWorker(Channel[channel.ChannelID].Channel, channel.ChannelID, err)
+	}
+}
+
+func makeFakeChunks() {
+
+	dataMaps := []models.DataMap{}
+
+	models.BuildDataMaps("GENHASH2", 49000)
+
+	_ = models.DB.RawQuery("SELECT * from data_maps").All(&dataMaps)
+
+	for i := 0; i < len(dataMaps); i++ {
+		dataMaps[i].Address = models.RandSeq(81)
+		dataMaps[i].Message = "TESTMESSAGE"
+		dataMaps[i].Status = models.Unassigned
+
+		models.DB.ValidateAndSave(&dataMaps[i])
 	}
 }
 
@@ -250,7 +270,6 @@ func doPowAndBroadcast(branch giota.Trytes, trunk giota.Trytes, depth int64,
 		} else {
 
 			err = api.StoreTransactions(trytes)
-			fmt.Println("BROADCAST SUCCESS")
 
 			/*
 				TODO do we need this??
@@ -391,11 +410,11 @@ func verifyChunksMatchRecord(chunks []models.DataMap, checkChunkAndBranch bool) 
 func chunksMatch(chunkOnTangle giota.Transaction, chunkOnRecord models.DataMap, checkBranchAndTrunk bool) bool {
 
 	if checkBranchAndTrunk == false &&
-		strings.Contains(fmt.Sprint(chunkOnTangle.SignatureMessageFragment), chunkOnRecord.Message) {
+		strings.Contains(fmt.Sprint(chunkOnTangle.SignatureMessageFragment), chunkOnRecord.Message) == true {
 
 		return true
 
-	} else if strings.Contains(fmt.Sprint(chunkOnTangle.SignatureMessageFragment), chunkOnRecord.Message) &&
+	} else if strings.Contains(fmt.Sprint(chunkOnTangle.SignatureMessageFragment), chunkOnRecord.Message) == true &&
 		strings.Contains(fmt.Sprint(chunkOnTangle.TrunkTransaction), chunkOnRecord.TrunkTx) &&
 		strings.Contains(fmt.Sprint(chunkOnTangle.BranchTransaction), chunkOnRecord.BranchTx) {
 

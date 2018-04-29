@@ -22,7 +22,6 @@ type UploadSessionResource struct {
 
 type uploadSessionCreateReq struct {
 	GenesisHash          string         `json:"genesisHash"`
-	NumChunks            int            `json:"numChunks"`
 	FileSizeBytes        int            `json:"fileSizeBytes"` // This is Trytes instead of Byte
 	BetaIP               string         `json:"betaIp"`
 	StorageLengthInYears int            `json:"storageLengthInYears"`
@@ -65,14 +64,15 @@ func (usr *UploadSessionResource) Create(c buffalo.Context) error {
 	req := uploadSessionCreateReq{}
 	oyster_utils.ParseReqBody(c.Request(), &req)
 
-	alphaEthAddr, privKey, _ := services.EthWrapper.GenerateEthAddr()
+	// Is this really what golang wants me to do do namespace a function?
+	eth := services.Eth{}
+	alphaEthAddr, privKey, _ := eth.GenerateEthAddr()
 
 	// Start Alpha Session.
 	alphaSession := models.UploadSession{
 		Type:                 models.SessionTypeAlpha,
 		GenesisHash:          req.GenesisHash,
 		FileSizeBytes:        req.FileSizeBytes,
-		NumChunks:            req.NumChunks,
 		StorageLengthInYears: req.StorageLengthInYears,
 		ETHAddrAlpha:         nulls.NewString(alphaEthAddr),
 		ETHPrivateKey:        privKey,
@@ -112,7 +112,6 @@ func (usr *UploadSessionResource) Create(c buffalo.Context) error {
 		betaSessionRes := &uploadSessionCreateBetaRes{}
 		oyster_utils.ParseResBody(betaRes, betaSessionRes)
 		betaSessionID = betaSessionRes.ID
-
 		betaTreasureIndexes = betaSessionRes.BetaTreasureIndexes
 	}
 
@@ -134,7 +133,6 @@ func (usr *UploadSessionResource) Create(c buffalo.Context) error {
 		BetaSessionID: betaSessionID,
 		Invoice:       invoice,
 	}
-
 	return c.Render(200, r.JSON(res))
 }
 
@@ -157,18 +155,10 @@ func (usr *UploadSessionResource) Update(c buffalo.Context) error {
 		// Map over chunks from request
 		// TODO: Batch processing DB upserts.
 		dMaps := make([]models.DataMap, len(req.Chunks))
-
 		for i, chunk := range req.Chunks {
 			// Fetch DataMap
 			dm := models.DataMap{}
-
-			var chunkIdx int
-			if oyster_utils.BrokerMode == oyster_utils.TestModeNoTreasure {
-				chunkIdx = chunk.Idx
-			} else {
-				chunkIdx = oyster_utils.TransformIndexWithBuriedIndexes(chunk.Idx, treasureIdxMap)
-			}
-
+			chunkIdx := oyster_utils.TransformIndexWithBuriedIndexes(chunk.Idx, treasureIdxMap)
 			err := models.DB.RawQuery(
 				"SELECT * from data_maps WHERE genesis_hash = ? AND chunk_idx = ?", uploadSession.GenesisHash, chunkIdx).First(&dm)
 
@@ -180,10 +170,6 @@ func (usr *UploadSessionResource) Update(c buffalo.Context) error {
 			if chunk.Hash == dm.GenesisHash {
 				// Updates dmap in DB.
 				dm.Message = chunk.Data
-				if oyster_utils.BrokerMode == oyster_utils.TestModeNoTreasure {
-					dm.Status = models.Unassigned
-				}
-
 				models.DB.ValidateAndSave(&dm)
 			}
 
@@ -202,12 +188,12 @@ func (usr *UploadSessionResource) CreateBeta(c buffalo.Context) error {
 	betaTreasureIndexes := oyster_utils.GenerateInsertedIndexesForPearl(oyster_utils.ConvertToByte(req.FileSizeBytes))
 
 	// Generates ETH address.
-	betaEthAddr, privKey, _ := services.EthWrapper.GenerateEthAddr()
+	eth := services.Eth{}
+	betaEthAddr, privKey, _ := eth.GenerateEthAddr()
 
 	u := models.UploadSession{
 		Type:                 models.SessionTypeBeta,
 		GenesisHash:          req.GenesisHash,
-		NumChunks:            req.NumChunks,
 		FileSizeBytes:        req.FileSizeBytes,
 		StorageLengthInYears: req.StorageLengthInYears,
 		TreasureIdxMap:       oyster_utils.GetTreasureIdxMap(req.AlphaTreasureIndexes, betaTreasureIndexes),

@@ -74,6 +74,9 @@ func App() *buffalo.App {
 		webnodeResource := WebnodeResource{}
 		apiV2.POST("supply/webnodes", webnodeResource.Create)
 
+		treasureHuntResource := TreasureHuntResource{}
+		apiV2.POST("supply/treasures", treasureHuntResource.Create)
+
 		// Transactions
 		transactionBrokernodeResource := TransactionBrokernodeResource{}
 		apiV2.POST("demand/transactions/brokernodes", transactionBrokernodeResource.Create)
@@ -82,10 +85,6 @@ func App() *buffalo.App {
 		transactionGenesisHashResource := TransactionGenesisHashResource{}
 		apiV2.POST("demand/transactions/genesis_hashes", transactionGenesisHashResource.Create)
 		apiV2.PUT("demand/transactions/genesis_hashes/{id}", transactionGenesisHashResource.Update)
-
-		// Treasures
-		treasures := TreasuresResource{}
-		apiV2.POST("treasures", treasures.VerifyAndClaim)
 	}
 
 	return app
